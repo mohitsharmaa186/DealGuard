@@ -20,6 +20,20 @@ Sales teams often offer discounts to close deals quickly, which can lead to:
 DealGuard addresses these challenges by introducing a centralized approval workflow with automated policy checks, approval routing, and activity tracking.
 
 ---
+## Screenshots
+
+### Revenue Intelligence Dashboard
+
+![DealGuard Dashboard](assets/screenshots/dashboard-home.png)
+
+The dashboard provides a centralized view of deal requests, revenue exposure, approval status, and risk indicators, helping stakeholders monitor deal performance in real time.
+
+### Deal Approval Workbench
+
+![DealGuard Approval Workbench](assets/screenshots/approval-workbench.png)
+
+Managers can review submitted deals, analyze financial impact, approve or reject requests, and maintain a complete approval audit trail through a streamlined approval interface.
+---
 
 ## Key Features
 
