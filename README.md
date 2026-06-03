@@ -1,65 +1,176 @@
-# DealGuard CRM
+# DealGuard
 
-A live portfolio project for a fresher Salesforce Developer role. It demonstrates sales deal approval, discount control, pricing visibility, approval routing, and audit tracking.
+## Revenue Intelligence & Discount Approval Platform
 
-## Run Locally
+DealGuard is a Salesforce application designed to help organizations manage discount approvals, reduce revenue leakage, and maintain pricing discipline through automated workflows, approval routing, and risk-based decision making.
 
-```bash
-python -m http.server 4173
-```
+Built using Salesforce platform technologies including Apex, Lightning Web Components (LWC), Flow Automation, and Experience Cloud, DealGuard simulates a real-world enterprise approval process used by sales and revenue operations teams.
 
-Open:
+---
+
+## Business Problem
+
+Sales teams often offer discounts to close deals quickly, which can lead to:
+
+* Reduced profit margins
+* Inconsistent approval processes
+* Lack of visibility into discount exposure
+* Missing audit trails and accountability
+
+DealGuard addresses these challenges by introducing a centralized approval workflow with automated policy checks, approval routing, and activity tracking.
+
+---
+
+## Key Features
+
+### Deal Approval Management
+
+* Create and manage discount requests
+* Submit deals for approval
+* Approve or reject requests with comments
+* Track approval status throughout the lifecycle
+
+### Automated Risk Assessment
+
+* Evaluate discount percentage against business policies
+* Assign risk levels automatically
+* Route deals to appropriate approvers
+
+### Workflow Automation
+
+* Record-Triggered Flows
+* Automated approval routing
+* Approval history creation
+* Status updates and notifications
+
+### Email Notifications
+
+* Notify approvers when new requests are submitted
+* Notify sales representatives when requests are approved or rejected
+* Automated communication throughout the approval process
+
+### Approval Audit Trail
+
+* Complete approval history tracking
+* Action logging
+* Decision comments and timestamps
+* Enhanced accountability and transparency
+
+### Experience Cloud
+
+* Customer and partner-facing experience
+* Secure external access
+* Responsive user interface
+
+### Interactive Dashboard
+
+* Revenue visibility
+* Deal monitoring
+* Approval workbench
+* Pipeline insights
+
+---
+
+## Technology Stack
+
+| Technology                     | Purpose                   |
+| ------------------------------ | ------------------------- |
+| Salesforce Platform            | Core Application          |
+| Apex                           | Business Logic            |
+| Lightning Web Components (LWC) | User Interface            |
+| Flow Builder                   | Process Automation        |
+| Experience Cloud               | External User Access      |
+| Salesforce CLI                 | Deployment & Development  |
+| Validation Rules               | Data Integrity            |
+| Permission Sets                | Security & Access Control |
+
+---
+
+## Architecture Overview
 
 ```text
-http://localhost:4173
+Sales Rep
+    │
+    ▼
+Create Deal Request
+    │
+    ▼
+Policy Evaluation
+(Apex + Flow)
+    │
+    ▼
+Risk Assessment
+    │
+    ▼
+Approver Assignment
+    │
+    ▼
+Approval Decision
+    │
+ ┌──┴──┐
+ ▼     ▼
+Approve Reject
+ │       │
+ ▼       ▼
+Email Notifications
+ │
+ ▼
+Approval History Tracking
 ```
 
-## What This Shows In An Interview
+---
 
-- Opportunity-style deal queue
-- Discount calculator with margin impact
-- Rule-based approval routing
-- Manager, director, and finance approval decisions
-- Validation-style policy signals
-- Audit trail and dashboard metrics
-- CSV export for reporting
+## Salesforce Components
 
-## Salesforce Build Mapping
+### Custom Objects
 
-- Standard object: `Opportunity`
-- Custom fields: `Discount_Percent__c`, `Delivery_Cost__c`, `Approval_Status__c`, `Discount_Reason__c`, `Required_Approver__c`, `Margin_Percent__c`
-- Automation: record-triggered Flow for routing and status updates
-- Approval process: Sales Manager, Regional Director, Finance Controller
-- LWC: discount calculator and approval workbench
-- Apex: pricing policy service and test classes
-- Reports: pending approvals, rejected discounts, average discount by owner, revenue at risk
+* Deal_Request__c
+* Deal_Approval_History__c
 
-## Resume Line
+### Automation
 
-Built a Salesforce-style Sales Deal Approval and Discount Management app to automate discount routing, calculate margin risk, capture approval decisions, and provide dashboards for sales leaders using a Flow/Apex/LWC-ready architecture.
+* Record Triggered Flow
+* Invocable Apex Actions
+* Email Automation
 
-## Deploy To Salesforce
+### Security
 
-Authenticate a free Developer Org:
+* Permission Sets
+* Role-Based Access
+
+### Development
+
+* Apex Controllers
+* Apex Test Classes
+* Lightning Web Components
+
+---
+
+## Deployment
+
+Deploy the application using Salesforce CLI:
 
 ```bash
-sf org login web --alias dealgaurd --instance-url https://login.salesforce.com --set-default
+sf project deploy start --source-dir force-app --test-level RunLocalTests
 ```
 
-Deploy metadata:
+---
 
-```bash
-sf project deploy start --target-org dealgaurd --test-level RunLocalTests
-```
+## Project Outcomes
 
-Assign access:
+* Automated enterprise approval workflow
+* Improved visibility into discount exposure
+* Centralized approval management
+* Full approval audit trail
+* Scalable Salesforce architecture
+* Production-style deployment process
 
-```bash
-sf org assign permset --name DealGuard_Admin --target-org dealgaurd
-```
+---
 
-Seed demo data:
+## Author
 
-```bash
-sf apex run --target-org dealgaurd --file scripts/seedDealGuard.apex
-```
+**Mohit Sharma**
+
+Salesforce Developer Portfolio Project
+
+Built using Apex, LWC, Flow Automation, Experience Cloud, and Salesforce CLI.
