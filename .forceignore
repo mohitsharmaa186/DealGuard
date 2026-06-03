@@ -1,0 +1,9 @@
+.git
+.gitignore
+node_modules
+*.log
+.sf
+.sfdx
+coverage
+force-app/main/default/reportTypes/Deal_Requests.reportType
+force-app/main/default/reportTypes/Deal_Requests.reportType-meta.xml

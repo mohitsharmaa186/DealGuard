@@ -1,0 +1,349 @@
+<template>
+    <section class="dealguard">
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading DealGuard" size="medium"></lightning-spinner>
+        </template>
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <img src={logoUrl} alt="DealGuard Logo" class="brand-logo" />
+                </div>
+                <div>
+                    <h1>DealGuard</h1>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <label class="field compact-field">
+                    <span>Approver role</span>
+                    <select value={selectedRole} onchange={handleRoleChange}>
+                        <template for:each={roleOptions} for:item="role">
+                            <option key={role} value={role}>{role}</option>
+                        </template>
+                    </select>
+                </label>
+                <button class="icon-button secondary" title="Refresh" aria-label="Refresh" onclick={loadDeals}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="kpi-strip" aria-label="Deal metrics">
+            <article class="metric-card">
+                <span>Pipeline under review</span>
+                <strong>{metrics.pipeline}</strong>
+                <small>{metrics.pipelineSub}</small>
+            </article>
+            <article class="metric-card accent-teal">
+                <span>Approved revenue</span>
+                <strong>{metrics.approved}</strong>
+                <small>{metrics.approvedSub}</small>
+            </article>
+            <article class="metric-card accent-amber">
+                <span>Discount exposure</span>
+                <strong>{metrics.exposure}</strong>
+                <small>{metrics.exposureSub}</small>
+            </article>
+            <article class="metric-card accent-red">
+                <span>Margin risk</span>
+                <strong>{metrics.risk}</strong>
+                <small>Deals below policy</small>
+            </article>
+        </div>
+
+        <div class="workspace-grid">
+            <section class="work-surface deal-workspace" aria-labelledby="dealsTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Opportunity queue</p>
+                        <h2 id="dealsTitle">Discount requests</h2>
+                    </div>
+                    <div class="segmented" role="tablist" aria-label="Deal status filter">
+                        <template for:each={filterOptions} for:item="filter">
+                            <button key={filter.value} class={filter.className} data-filter={filter.value} type="button" onclick={handleFilterChange}>
+                                {filter.label}
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <label class="search-box">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"></path>
+                    </svg>
+                    <input type="search" value={searchKey} placeholder="Search account, owner, region" oninput={handleSearchChange} />
+                </label>
+
+                <div class="deal-table" role="table" aria-label="Discount requests">
+                    <div class="deal-row table-head" role="row">
+                        <span>Deal</span>
+                        <span>Discount</span>
+                        <span>Margin</span>
+                        <span>Status</span>
+                        <span></span>
+                    </div>
+                    <template if:true={hasDeals}>
+                        <template for:each={dealRows} for:item="deal">
+                            <div key={deal.id} class={deal.rowClass} role="row">
+                                <div class="deal-main">
+                                    <strong>{deal.accountName}</strong>
+                                    <div class="amount-line">{deal.name} | {deal.salesRepName} | {deal.finalPriceLabel}</div>
+                                </div>
+                                <strong>{deal.discountLabel}</strong>
+                                <strong>{deal.marginLabel}</strong>
+                                <span class={deal.statusClass}>{deal.approvalStatus}</span>
+                                <button class="select-button" type="button" data-id={deal.id} onclick={handleSelectDeal}>Open</button>
+                            </div>
+                        </template>
+                    </template>
+                    <template if:false={hasDeals}>
+                        <div class="empty-state">No matching deals found.</div>
+                    </template>
+                </div>
+            </section>
+
+            <section class="work-surface decision-workspace" aria-labelledby="decisionTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Approval workbench</p>
+                        <h2 id="decisionTitle">Selected deal</h2>
+                    </div>
+                    <template if:true={selectedDealView}>
+                        <span class={selectedDealView.statusClass}>{selectedDealView.approvalStatus}</span>
+                    </template>
+                </div>
+
+                <template if:true={selectedDealView}>
+                    <div class="selected-deal">
+                        <div class="selected-title">
+                            <div>
+                                <strong>{selectedDealView.accountName}</strong>
+                                <p>{selectedDealView.name} | {selectedDealView.dealStage} | {selectedDealView.region}</p>
+                            </div>
+                            <span class={selectedDealView.riskClass}>{selectedDealView.riskLabel}</span>
+                        </div>
+
+                        <div class="detail-list">
+                            <div><span>Net revenue</span><strong>{selectedDealView.finalPriceLabel}</strong></div>
+                            <div><span>Discount value</span><strong>{selectedDealView.discountValueLabel}</strong></div>
+                            <div><span>Gross margin</span><strong>{selectedDealView.marginLabel}</strong></div>
+                            <div><span>Required approver</span><strong>{selectedDealView.requiredApprover}</strong></div>
+                            <div><span>Customer tier</span><strong>{selectedDealView.customerTier}</strong></div>
+                            <div><span>Owner</span><strong>{selectedDealView.salesRepName}</strong></div>
+                        </div>
+
+                        <div class="pricing-preview">
+                            <div class="preview-row"><span>Reason</span><strong>{selectedDealView.discountReason}</strong></div>
+                            <div class="preview-row"><span>Policy signal</span><strong>{selectedDealView.policySignal}</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="approval-path" aria-label="Approval path">
+                        <template for:each={approvalPath} for:item="step">
+                            <div key={step.label} class={step.className}>
+                                <span class="step-index">{step.index}</span>
+                                <strong>{step.label}</strong>
+                                <span>{step.type}</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <template if:true={isPublicVisitor}>
+                        <div class="decision-box">
+                            <div class="preview-row"><span>Public visitor access</span><strong>Read-only</strong></div>
+                        </div>
+                    </template>
+
+                    <template if:false={isPublicVisitor}>
+                        <div class="decision-box">
+                            <label class="field">
+                                <span>Approver note</span>
+                                <textarea rows="4" value={decisionNote} placeholder={decisionPlaceholder} oninput={handleDecisionNoteChange}></textarea>
+                            </label>
+                            <div class="decision-actions">
+                                <button class="command danger" data-status="Rejected" type="button" disabled={decisionDisabled} onclick={handleDecision}>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M18 6 6 18M6 6l12 12"></path>
+                                    </svg>
+                                    Reject
+                                </button>
+                                <button class="command primary" data-status="Approved" type="button" disabled={decisionDisabled} onclick={handleDecision}>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="m5 13 4 4L19 7"></path>
+                                    </svg>
+                                    Approve
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:false={selectedDealView}>
+                    <div class="empty-state">Create or seed a deal request to start.</div>
+                </template>
+            </section>
+
+            <aside class="work-surface request-workspace" aria-labelledby="requestTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Discount calculator</p>
+                        <h2 id="requestTitle">New request</h2>
+                    </div>
+                    <template if:false={isPublicVisitor}>
+                        <button class="mini-button" type="button" onclick={handleSeedDemo}>Seed demo</button>
+                    </template>
+                </div>
+
+                <template if:true={isPublicVisitor}>
+                    <div class="pricing-preview">
+                        <div class="preview-row"><span>Project mode</span><strong>Public portfolio view</strong></div>
+                        <div class="preview-row"><span>Salesforce data</span><strong>Custom objects + Apex</strong></div>
+                        <div class="preview-row"><span>Public safety</span><strong>Read-only guest access</strong></div>
+                        <div class="preview-row"><span>Internal users</span><strong>Create and approve deals</strong></div>
+                    </div>
+                </template>
+
+                <template if:false={isPublicVisitor}>
+                    <form class="deal-form" onsubmit={handleSubmit}>
+                        <label class="field">
+                            <span>Account</span>
+                            <input name="accountName" required maxlength="80" value={form.accountName} placeholder="Example: Nimbus Retail" oninput={handleFormInput} />
+                        </label>
+
+                        <div class="two-column">
+                            <label class="field">
+                                <span>Owner</span>
+                                <input name="salesRepName" required maxlength="80" value={form.salesRepName} placeholder="Sales rep" oninput={handleFormInput} />
+                            </label>
+                            <label class="field">
+                                <span>Region</span>
+                                <select name="region" value={form.region} onchange={handleFormInput}>
+                                    <template for:each={regions} for:item="region">
+                                        <option key={region} value={region}>{region}</option>
+                                    </template>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="two-column">
+                            <label class="field">
+                                <span>List price</span>
+                                <input name="dealAmount" required min="1000" step="500" type="number" value={form.dealAmount} oninput={handleFormInput} />
+                            </label>
+                            <label class="field">
+                                <span>Delivery cost</span>
+                                <input name="deliveryCost" required min="0" step="500" type="number" value={form.deliveryCost} oninput={handleFormInput} />
+                            </label>
+                        </div>
+
+                        <div class="slider-row">
+                            <label class="field">
+                                <span>Discount percent</span>
+                                <input name="discountPercent" min="0" max="45" step="1" type="range" value={form.discountPercent} oninput={handleFormInput} />
+                            </label>
+                            <output>{preview.discountLabel}</output>
+                        </div>
+
+                        <div class="two-column">
+                            <label class="field">
+                                <span>Customer tier</span>
+                                <select name="customerTier" value={form.customerTier} onchange={handleFormInput}>
+                                    <template for:each={tiers} for:item="tier">
+                                        <option key={tier} value={tier}>{tier}</option>
+                                    </template>
+                                </select>
+                            </label>
+                            <label class="field">
+                                <span>Stage</span>
+                                <select name="dealStage" value={form.dealStage} onchange={handleFormInput}>
+                                    <template for:each={stages} for:item="stage">
+                                        <option key={stage} value={stage}>{stage}</option>
+                                    </template>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label class="field">
+                            <span>Discount reason</span>
+                            <textarea name="discountReason" rows="3" maxlength="255" value={form.discountReason} placeholder="Competitive pricing, renewal risk, bundle offer" oninput={handleFormInput}></textarea>
+                        </label>
+
+                        <div class="pricing-preview">
+                            <div class="preview-row"><span>Final customer price</span><strong>{preview.finalPrice}</strong></div>
+                            <div class="preview-row"><span>Discount value</span><strong>{preview.discountValue}</strong></div>
+                            <div class="preview-row"><span>Gross margin</span><strong>{preview.marginLabel}</strong></div>
+                            <div class="preview-row"><span>Approval route</span><strong>{preview.requiredApprover}</strong></div>
+                        </div>
+
+                        <button class="command primary wide" type="submit">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 5v14M5 12h14"></path>
+                            </svg>
+                            Submit request
+                        </button>
+                    </form>
+                </template>
+            </aside>
+        </div>
+
+        <div class="insight-grid">
+            <section class="work-surface" aria-labelledby="matrixTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Policy matrix</p>
+                        <h2 id="matrixTitle">Routing logic</h2>
+                    </div>
+                </div>
+                <div class="policy-grid">
+                    <div><strong>0-10%</strong><span>Auto approved</span></div>
+                    <div><strong>11-20%</strong><span>Sales Manager</span></div>
+                    <div><strong>21-30%</strong><span>Regional Director</span></div>
+                    <div><strong>31%+</strong><span>Finance Controller</span></div>
+                    <div><strong>&lt; 18%</strong><span>Margin exception</span></div>
+                    <div><strong>Strategic</strong><span>Extra review over 15%</span></div>
+                </div>
+            </section>
+
+            <section class="work-surface" aria-labelledby="chartTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Approval analytics</p>
+                        <h2 id="chartTitle">Approver workload</h2>
+                    </div>
+                </div>
+                <div class="bar-chart">
+                    <template for:each={chartRows} for:item="row">
+                        <div class="bar-row" key={row.label}>
+                            <strong>{row.label}</strong>
+                            <div class="bar-track"><div class="bar-fill" style={row.style}></div></div>
+                            <span>{row.count}</span>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <section class="work-surface" aria-labelledby="timelineTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Audit trail</p>
+                        <h2 id="timelineTitle">Recent activity</h2>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <template for:each={timelineItems} for:item="item">
+                        <div class="timeline-item" key={item.key}>
+                            <span class="timeline-dot"></span>
+                            <div>
+                                <p>{item.text}</p>
+                                <span>{item.dealLabel}</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+        </div>
+    </section>
+</template>

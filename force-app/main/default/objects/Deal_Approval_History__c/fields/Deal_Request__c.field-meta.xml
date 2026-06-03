@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Deal_Request__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Deal Request</label>
+    <referenceTo>Deal_Request__c</referenceTo>
+    <relationshipLabel>Approval History</relationshipLabel>
+    <relationshipName>Approval_History</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

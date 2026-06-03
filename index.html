@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DealGuard CRM | Sales Deal Approval</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <img src="assets/ChatGPT Image Jun 3, 2026, 11_17_24 PM.png" alt="DealGuard Logo" class="brand-logo" />
+          </div>
+          <div>
+            <p class="eyebrow">Salesforce fresher project</p>
+            <h1>DealGuard CRM</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <label class="field compact-field">
+            <span>Approver role</span>
+            <select id="roleSelect">
+              <option>Sales Manager</option>
+              <option>Regional Director</option>
+              <option>Finance Controller</option>
+            </select>
+          </label>
+          <button class="icon-button secondary" id="exportCsv" title="Export CSV" aria-label="Export CSV">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+            </svg>
+          </button>
+          <button class="icon-button secondary" id="resetData" title="Reset demo data" aria-label="Reset demo data">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="kpi-strip" aria-label="Deal metrics">
+          <article class="metric-card">
+            <span>Pipeline under review</span>
+            <strong id="metricPipeline">$0</strong>
+            <small id="metricPipelineSub">0 active requests</small>
+          </article>
+          <article class="metric-card accent-teal">
+            <span>Approved revenue</span>
+            <strong id="metricApproved">$0</strong>
+            <small id="metricApprovedSub">0 won-ready deals</small>
+          </article>
+          <article class="metric-card accent-amber">
+            <span>Discount exposure</span>
+            <strong id="metricExposure">$0</strong>
+            <small id="metricExposureSub">Weighted from list price</small>
+          </article>
+          <article class="metric-card accent-red">
+            <span>Margin risk</span>
+            <strong id="metricRisk">0</strong>
+            <small id="metricRiskSub">Deals below policy</small>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <section class="work-surface deal-workspace" aria-labelledby="dealsTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Opportunity queue</p>
+                <h2 id="dealsTitle">Discount requests</h2>
+              </div>
+              <div class="segmented" role="tablist" aria-label="Deal status filter">
+                <button class="segment active" data-filter="All" type="button">All</button>
+                <button class="segment" data-filter="Pending" type="button">Pending</button>
+                <button class="segment" data-filter="Approved" type="button">Approved</button>
+                <button class="segment" data-filter="Rejected" type="button">Rejected</button>
+              </div>
+            </div>
+
+            <label class="search-box">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+              </svg>
+              <input id="searchDeals" type="search" placeholder="Search account, owner, region" />
+            </label>
+
+            <div class="deal-table" role="table" aria-label="Discount requests">
+              <div class="deal-row table-head" role="row">
+                <span>Deal</span>
+                <span>Discount</span>
+                <span>Margin</span>
+                <span>Status</span>
+                <span></span>
+              </div>
+              <div id="dealRows"></div>
+            </div>
+          </section>
+
+          <section class="work-surface decision-workspace" aria-labelledby="decisionTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Approval workbench</p>
+                <h2 id="decisionTitle">Selected deal</h2>
+              </div>
+              <span class="status-pill" id="selectedStatus">Pending</span>
+            </div>
+
+            <div id="selectedDeal" class="selected-deal"></div>
+
+            <div class="approval-path" id="approvalPath" aria-label="Approval path"></div>
+
+            <div class="decision-box">
+              <label class="field">
+                <span>Approver note</span>
+                <textarea id="decisionNote" rows="4" placeholder="Add business justification or rejection reason"></textarea>
+              </label>
+              <div class="decision-actions">
+                <button class="command danger" id="rejectDeal" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                  Reject
+                </button>
+                <button class="command primary" id="approveDeal" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m5 13 4 4L19 7" />
+                  </svg>
+                  Approve
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="work-surface request-workspace" aria-labelledby="requestTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Discount calculator</p>
+                <h2 id="requestTitle">New request</h2>
+              </div>
+            </div>
+
+            <form id="dealForm" class="deal-form">
+              <label class="field">
+                <span>Account</span>
+                <input name="account" required maxlength="48" placeholder="Example: Nimbus Retail" />
+              </label>
+
+              <div class="two-column">
+                <label class="field">
+                  <span>Owner</span>
+                  <input name="owner" required maxlength="32" placeholder="Sales rep" />
+                </label>
+                <label class="field">
+                  <span>Region</span>
+                  <select name="region">
+                    <option>North</option>
+                    <option>South</option>
+                    <option>West</option>
+                    <option>East</option>
+                    <option>Central</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="two-column">
+                <label class="field">
+                  <span>List price</span>
+                  <input name="amount" required min="1000" step="500" type="number" value="75000" />
+                </label>
+                <label class="field">
+                  <span>Delivery cost</span>
+                  <input name="cost" required min="0" step="500" type="number" value="42000" />
+                </label>
+              </div>
+
+              <div class="slider-row">
+                <label class="field">
+                  <span>Discount percent</span>
+                  <input name="discount" id="discountInput" min="0" max="45" step="1" type="range" value="14" />
+                </label>
+                <output id="discountOutput">14%</output>
+              </div>
+
+              <div class="two-column">
+                <label class="field">
+                  <span>Customer tier</span>
+                  <select name="tier">
+                    <option>Standard</option>
+                    <option>Growth</option>
+                    <option>Strategic</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Stage</span>
+                  <select name="stage">
+                    <option>Qualification</option>
+                    <option selected>Negotiation</option>
+                    <option>Procurement</option>
+                    <option>Legal Review</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Discount reason</span>
+                <textarea name="reason" rows="3" maxlength="180" placeholder="Competitive pricing, renewal risk, bundle offer"></textarea>
+              </label>
+
+              <div class="pricing-preview" id="pricingPreview"></div>
+
+              <button class="command primary wide" type="submit">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Submit request
+              </button>
+            </form>
+          </aside>
+        </section>
+
+        <section class="insight-grid">
+          <section class="work-surface" aria-labelledby="matrixTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Policy matrix</p>
+                <h2 id="matrixTitle">Routing logic</h2>
+              </div>
+            </div>
+            <div class="policy-grid">
+              <div><strong>0-10%</strong><span>Auto approved</span></div>
+              <div><strong>11-20%</strong><span>Sales Manager</span></div>
+              <div><strong>21-30%</strong><span>Regional Director</span></div>
+              <div><strong>31%+</strong><span>Finance Controller</span></div>
+              <div><strong>&lt; 22%</strong><span>Margin exception</span></div>
+              <div><strong>Strategic</strong><span>Extra review over 15%</span></div>
+            </div>
+          </section>
+
+          <section class="work-surface" aria-labelledby="chartTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Approval analytics</p>
+                <h2 id="chartTitle">Approver workload</h2>
+              </div>
+            </div>
+            <div class="bar-chart" id="barChart"></div>
+          </section>
+
+          <section class="work-surface" aria-labelledby="timelineTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Audit trail</p>
+                <h2 id="timelineTitle">Recent activity</h2>
+              </div>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

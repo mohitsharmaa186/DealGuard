@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Sales deal discount request with approval routing, margin visibility, and policy status.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>true</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <label>Deal Request</label>
+    <nameField>
+        <displayFormat>DR-{0000}</displayFormat>
+        <label>Deal Request Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Deal Requests</pluralLabel>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Account_Name__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Approval_Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Required_Approver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Discount_Percent__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

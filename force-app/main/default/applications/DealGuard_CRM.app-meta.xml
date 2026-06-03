@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Sales deal approval and discount management app for a Salesforce fresher portfolio project.</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <label>DealGuard CRM</label>
+    <navType>Standard</navType>
+    <tabs>DealGuard_Dashboard</tabs>
+    <tabs>Deal_Request__c</tabs>
+    <tabs>Deal_Approval_History__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>
